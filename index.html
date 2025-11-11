@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FVS - Field Verification System</title>
+    <style>
+        /* --- General & Background Styles --- */
+        :root {
+            --primary-blue: #1E90FF;
+            --success-green: #3CB371;
+            --accent-yellow: #FFD700;
+            --light-bg: #F0F8FF;
+            --box-bg: #FFFFFF;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px; /* Reduced padding for mobile space */
+            background: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* --- Header Enhancements for Mobile --- */
+        #header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #header img {
+            max-width: 150px; /* Make logo smaller on mobile */
+            height: auto;
+        }
+
+        #header h1 {
+            font-size: 1.5em; /* Make header text smaller on mobile */
+            color: var(--primary-blue);
+        }
+
+        #main-content {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px; /* Slightly reduced gap */
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* --- Box Styles --- */
+        #id-box, #location-box, #camera-box, #company-box {
+            background: var(--box-bg);
+            padding: 20px; /* Slightly reduced padding inside boxes */
+            border-radius: 12px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            border-top: 5px solid var(--primary-blue);
+            width: 30%;
+            min-width: 280px;
+            max-width: 450px;
+            margin-bottom: 15px; /* Reduced margin */
+            box-sizing: border-box;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #camera-box {
+            text-align: center;
+            flex-grow: 1;
+            border-top-color: var(--success-green);
+        }
+
+        h3 {
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--accent-yellow);
+            padding-bottom: 8px;
+            margin-top: 0;
+            font-size: 1.1em; /* Slightly smaller heading for mobile */
+        }
+
+        /* --- Form Element Styles --- */
+        #staff-id-select {
+            width: 100%;
+            padding: 12px; /* Slightly larger padding for easier tapping */
+            margin-top: 10px;
+            border: 2px solid var(--primary-blue);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            background-color: #fff;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path d="M6 9l-3-3 6-6z" fill="%231E90FF"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            padding-right: 30px;
+        }
+
+        /* --- Button Styles --- */
+        button {
+            padding: 14px 18px; /* Slightly larger padding for easier tapping */
+            border: none;
+            background: var(--primary-blue);
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            transition: background 0.3s, transform 0.1s;
+            font-size: 1em; /* Ensures good size on mobile */
+        }
+
+        #submit-btn {
+            background: var(--success-green);
+        }
+
+        button:disabled {
+            background: #B0C4DE;
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* --- Video/Photo Styles --- */
+        video, canvas {
+            display: block;
+            margin: 15px auto;
+            border: 3px solid var(--primary-blue);
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        #captured-photo {
+            margin-top: 20px;
+            border: 2px dashed var(--success-green);
+            background: #F8FFF8;
+            padding: 15px;
+            display: none;
+            border-radius: 8px;
+        }
+
+        #photo-output {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+            margin: 10px auto 0;
+        }
+
+        /* --- Confirmation Modal Styles --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            padding-top: 20px; /* Reduced padding top for mobile */
+        }
+        .modal-content {
+            background-color: var(--box-bg);
+            margin: 5% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 90%; /* Increased width for better fit on small screens */
+            max-width: 550px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            animation-name: animatetop;
+            animation-duration: 0.4s
+        }
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        /* --- Status Messages --- */
+        .text-success { color: var(--success-green); font-weight: bold; }
+        .text-error { color: #DC143C; font-weight: bold; }
+        .text-info { color: var(--primary-blue); }
+
+        /* --- MOBILE/SMALL SCREEN STYLES (Key for Responsiveness) --- */
+        @media (max-width: 900px) {
+            body {
+                padding: 5px; /* Minimal body padding */
+            }
+
+            #main-content {
+                /* Switch to vertical stacking */
+                flex-direction: column;
+                align-items: center;
+                gap: 10px; /* Tighter gap between stacked boxes */
+            }
+
+            #id-box, #location-box, #camera-box, #company-box {
+                /* Make boxes full width */
+                width: 98%;
+                min-width: auto; /* Remove min-width restriction */
+                margin-bottom: 10px; /* Tighter margin */
+                padding: 15px; /* Tighter internal padding */
+            }
+
+            #header h1 {
+                font-size: 1.3em; /* Ensure header title doesn't break */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <img src="https://www.techniqueengineers.com/assets/images/technique-engineers-logo.png" alt="Technique Engineers Logo">
+    <h1>Field Verification System (FVS)</h1>
+</header>
+<div id="main-content">
+
+    <div id="id-box">
+        <h3>👤 Staff Identification</h3>
+        <p>Select your unique **Staff ID** to begin verification.</p>
+        <select id="staff-id-select" onchange="captureStaffId()">
+            </select>
+        <p id="id-status" class="text-info"></p>
+    </div>
+    <div id="location-box">
+        <h3>🌍 Accurate Device Location</h3>
+        <p id="status" class="text-info">Select a Staff ID to begin...</p>
+    </div>
+
+    <div id="camera-box">
+        <h3>📸 Face Photo Capture</h3>
+        <p id="camera-status" class="text-info">Select a Staff ID to begin...</p>
+        <video id="video" autoplay></video>
+        <button onclick="openCamera()" disabled id="open-camera-btn">Open Camera</button>
+        <button onclick="capturePhoto()" disabled id="capture-btn">Capture Face Photo</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+
+        <div id="captured-photo">
+            <strong>Captured Photo:</strong>
+            <img id="photo-output" alt="Captured Face Photo">
+        </div>
+
+        <button onclick="openConfirmationModal()" disabled id="submit-btn">
+            Review & Submit Data
+        </button>
+    </div>
+
+    <div id="company-box">
+        <h3>🏢 Company Information</h3>
+        <p>
+            <strong class="text-primary">Company Name:</strong> Technique Engineers<br>
+            <strong class="text-primary">Project:</strong> Field Verification System (FVS)
+        </p>
+        <p>
+            This application is designed for **accurate, real-time location and identity verification** of field staff.
+        </p>
+        <p>
+            <strong class="text-primary">Website:</strong> <a href="https://www.techniqueengineers.com/" target="_blank" style="color: var(--primary-blue);">techniqueengineers.com</a><br>
+            <strong class="text-primary">Version:</strong> 1.2.8
+        </p>
+    </div>
+
+</div>
+
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmationModal()">&times;</span>
+        <h3 style="border-bottom-color: var(--success-green);">Confirm Submission Details</h3>
+        <div id="confirm-data">
+            </div>
+        <button id="final-submit-btn" onclick="uploadDataToGoogleSheet()">
+            Confirm and Final Submit
+        </button>
+    </div>
+</div>
+
+<div id="finalConfirmationModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmationModal()">&times;</span>
+        <div id="final-confirm-data">
+            </div>
+        <button onclick="closeConfirmationModal()" style="background: var(--success-green); margin-top: 20px;">
+            Close and Continue
+        </button>
+    </div>
+</div>
+
+<script>
+    // 🛑 REPLACE THIS with YOUR Apps Script Web App URL 🛑
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwZvohuofPFI9UxxKOEzpyGUQYbzthiAWhjSqR-rSTZdseRsTwYCJ1o4SVPxDUCJmwB/exec';
+
+    // 🛑 IMPORTANT: DEFINE YOUR STAFF ID LIST HERE 🛑
+    const STAFF_IDS = [
+        { id: '', name: '--- Select Staff ID ---' },
+        { id: 'TE-1001', name: 'TE-1001 (John Doe)' },
+        { id: 'TE-1002', name: 'TE-1002 (Jane Smith)' },
+        { id: 'TE-1003', name: 'TE-1003 (Mike Johnson)' },
+        { id: 'TE-1004', name: 'TE-1004 (Sarah Lee)' },
+    ];
+    // ----------------------------------------------------
+
+    // Global variables to store the latest data
+    let currentStaffId = null;
+    let currentPosition = null;
+    let currentPhotoData = null;
+    let stream = null;
+
+    // UI elements
+    const staffIdSelect = document.getElementById('staff-id-select');
+    const idStatus = document.getElementById('id-status');
+    const locationStatus = document.getElementById('status');
+    const cameraStatus = document.getElementById('camera-status');
+    const openCameraButton = document.getElementById('open-camera-btn');
+    const captureButton = document.getElementById('capture-btn');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const photoOutput = document.getElementById('photo-output');
+    const capturedPhotoDiv = document.getElementById('captured-photo');
+    const submitButton = document.getElementById('submit-btn');
+    const modal = document.getElementById('confirmationModal');
+    const confirmData = document.getElementById('confirm-data');
+    const finalConfirmationModal = document.getElementById('finalConfirmationModal');
+    const finalConfirmationData = document.getElementById('final-confirm-data');
+
+    // --- Dropdown Population Function ---
+    function populateStaffIds() {
+        STAFF_IDS.forEach(staff => {
+            const option = document.createElement('option');
+            option.value = staff.id;
+            option.textContent = staff.name;
+            staffIdSelect.appendChild(option);
+        });
+    }
+
+    // --- Staff ID Handling from Select Option ---
+    function captureStaffId() {
+        const selectedId = staffIdSelect.value;
+
+        if (selectedId && selectedId !== '') {
+            currentStaffId = selectedId;
+            idStatus.innerHTML = `<span class="text-success">✅ ID Set: <strong>${selectedId}</strong>. Ready to proceed.</span>`;
+
+            openCameraButton.disabled = false;
+            locationStatus.innerHTML = '<span class="text-info">⏳ Fetching accurate location…</span>';
+            getAccurateLocation();
+        } else {
+            currentStaffId = null;
+            idStatus.innerHTML = '<span class="text-error">Please select your Staff ID from the list.</span>';
+            openCameraButton.disabled = true;
+            locationStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+            cameraStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+            checkReadiness();
+        }
+    }
+
+    // Helper function to check if ALL required data points are ready
+    function checkReadiness() {
+        if (currentStaffId && currentPosition && currentPhotoData) {
+            submitButton.disabled = false;
+            submitButton.textContent = "Review & Submit Data (Ready)";
+            submitButton.style.background = 'var(--success-green)';
+        } else {
+            submitButton.disabled = true;
+            submitButton.textContent = "Review & Submit Data";
+            submitButton.style.background = '#B0C4DE';
+        }
+    }
+
+    // --- GEOLOCATION FUNCTIONALITY ---
+    function getAccurateLocation() {
+        if (!currentStaffId) return;
+
+        if (!navigator.geolocation) {
+            locationStatus.textContent = "❌ Error: Your browser doesn't support geolocation.";
+            locationStatus.className = 'text-error';
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude, accuracy } = position.coords;
+
+                currentPosition = { latitude, longitude, accuracy };
+
+                locationStatus.innerHTML = `
+                    <span class="text-success">✅ **Location Found!**</span><br>
+                    Latitude: <strong>${latitude.toFixed(6)}</strong><br>
+                    Longitude: <strong>${longitude.toFixed(6)}</strong><br>
+                    Accuracy: <strong>${accuracy.toFixed(1)}</strong> meters
+                `;
+                checkReadiness();
+            },
+            (error) => {
+                locationStatus.textContent = `❌ Location Error: ${error.message}. Please check permissions.`;
+                locationStatus.className = 'text-error';
+                currentPosition = null;
+                checkReadiness();
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    // --- CAMERA FUNCTIONALITY (Uses Web MediaDevices/getUserMedia) ---
+    async function openCamera() {
+        if (!currentStaffId) return;
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            video.style.display = 'none';
+            captureButton.disabled = true;
+            captureButton.textContent = "Capture Face Photo";
+            openCameraButton.textContent = "Open Camera";
+        }
+
+        try {
+            // Request camera access
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            video.srcObject = stream;
+            video.play();
+            video.style.display = 'block';
+            captureButton.disabled = false;
+            captureButton.textContent = "Capture Face Photo";
+            cameraStatus.innerHTML = '<span class="text-success">Camera active. Look at the screen.</span>';
+        } catch (err) {
+            console.error("Error accessing camera: ", err);
+            cameraStatus.innerHTML = '<span class="text-error">❌ Error: Could not access camera. Make sure you allow camera permissions.</span>';
+            captureButton.disabled = true;
+            video.style.display = 'none';
+        }
+    }
+
+    function capturePhoto() {
+        if (!stream) {
+            cameraStatus.textContent = "Camera not active. Click 'Open Camera' first.";
+            return;
+        }
+
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const dataUrl = canvas.toDataURL('image/png');
+
+        currentPhotoData = dataUrl;
+        photoOutput.src = dataUrl;
+        capturedPhotoDiv.style.display = 'block';
+
+        if(stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        video.style.display = 'none';
+        captureButton.disabled = true;
+
+        cameraStatus.innerHTML = '<span class="text-success">✅ Photo captured! Click the green button to review.</span>';
+        openCameraButton.textContent = "Re-Open Camera";
+
+        checkReadiness();
+    }
+
+    // --- Confirmation Modal Functions ---
+    function openConfirmationModal() {
+        if (!currentStaffId || !currentPosition || !currentPhotoData) {
+            alert("Please ensure Staff ID is selected, location is captured, and photo is taken before reviewing.");
+            return;
+        }
+
+        const staffName = STAFF_IDS.find(s => s.id === currentStaffId)?.name || currentStaffId;
+
+        confirmData.innerHTML = `
+            <p><strong>Staff ID:</strong> <span class="text-primary">${staffName}</span></p>
+            <hr>
+            <p><strong>Time of Review:</strong> ${new Date().toLocaleTimeString()}</p>
+            <p><strong>Latitude:</strong> <span class="text-primary">${currentPosition.latitude.toFixed(6)}</span></p>
+            <p><strong>Longitude:</strong> <span class="text-primary">${currentPosition.longitude.toFixed(6)}</span></p>
+            <p><strong>Accuracy:</strong> <span class="text-primary">${currentPosition.accuracy.toFixed(1)} meters</span></p>
+            <p><strong>Captured Photo:</strong></p>
+            <img src="${currentPhotoData}" alt="Captured Image for Confirmation" style="max-width: 100%; border-radius: 8px;">
+            <hr>
+            <p style="font-weight: bold; color: #DC143C;">⚠️ Verify all details, especially your ID, before clicking "Confirm and Final Submit".</p>
+        `;
+
+        modal.style.display = "block";
+    }
+
+    function closeConfirmationModal() {
+        modal.style.display = "none";
+        if(finalConfirmationModal) finalConfirmationModal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal || (finalConfirmationModal && event.target == finalConfirmationModal)) {
+            closeConfirmationModal();
+        }
+    }
+
+    // --- UPLOAD FUNCTIONALITY: MODIFIED TO SHOW FINAL SUCCESS MODAL ---
+    async function uploadDataToGoogleSheet() {
+        closeConfirmationModal(); // Close the initial review modal
+
+        const finalSubmitButton = document.getElementById('final-submit-btn');
+        finalSubmitButton.disabled = true;
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting Data... Please Wait";
+        submitButton.style.background = 'var(--primary-blue)';
+
+        const dataToSend = {
+            staffId: currentStaffId,
+            latitude: currentPosition.latitude,
+            longitude: currentPosition.longitude,
+            accuracy: currentPosition.accuracy,
+            photoData: currentPhotoData
+        };
+
+        // Capture data for success summary before resetting globals
+        const submittedStaffId = currentStaffId;
+        const submittedPosition = {...currentPosition};
+
+        try {
+            // Note: The 'no-cors' mode is required for Google Apps Script Web App POST requests
+            const response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataToSend)
+            });
+
+            // --- Post-Submission Success Actions ---
+
+            // 1. Display success message on the main screen
+            cameraStatus.innerHTML = '<span class="text-success">✅ Upload SUCCESS! Data sent to Google Sheet.</span>';
+            submitButton.style.background = 'var(--success-green)';
+            submitButton.textContent = "Data Submitted! (Select ID to Start New)";
+
+            // 2. Open Final Confirmation Modal
+            openFinalConfirmationModal(submittedStaffId, submittedPosition);
+
+
+            // 3. Reset UI for next submission
+            currentPosition = null;
+            currentPhotoData = null;
+            photoOutput.src = '';
+            capturedPhotoDiv.style.display = 'none';
+            staffIdSelect.value = '';
+            currentStaffId = null;
+            idStatus.textContent = '';
+            openCameraButton.textContent = "Open Camera";
+
+            openCameraButton.disabled = true;
+            locationStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+            cameraStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
+
+            checkReadiness();
+            finalSubmitButton.disabled = false;
+
+        } catch (error) {
+            console.error('Upload Error:', error);
+            cameraStatus.innerHTML = `<span class="text-error">❌ Upload FAILED: ${error.message}</span>`;
+            submitButton.style.background = '#DC143C';
+            submitButton.textContent = "Submission Failed (Click to Retry)";
+            submitButton.disabled = false;
+            finalSubmitButton.disabled = false;
+        }
+    }
+
+    // NEW FUNCTION: Displays the final success confirmation
+    function openFinalConfirmationModal(staffId, position) {
+        if (!finalConfirmationModal) return;
+
+        const staffName = STAFF_IDS.find(s => s.id === staffId)?.name || staffId;
+
+        finalConfirmationData.innerHTML = `
+            <h3 style="color: var(--success-green); border-bottom-color: var(--success-green);">Submission Successful! 🎉</h3>
+            <p>Your verification data has been successfully sent to the Google Sheet.</p>
+            <hr>
+            <p><strong>Staff ID:</strong> <span class="text-success">${staffName}</span></p>
+            <p><strong>Time:</strong> ${new Date().toLocaleTimeString()}</p>
+            <p><strong>Coordinates:</strong> ${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}</p>
+            <hr>
+            <p style="font-weight: bold;">You may now close this window or select a new Staff ID to begin a new entry.</p>
+        `;
+        finalConfirmationModal.style.display = "block";
+    }
+
+
+    // Initial setup on page load
+    populateStaffIds();
+    video.style.display = 'none';
+    openCameraButton.disabled = true;
+    checkReadiness();
+</script>
+
+</body>
+</html>
