@@ -106,7 +106,7 @@
         /* Delay the animations for a staggered effect */
         #location-box { border-left-color: var(--accent-yellow); animation-delay: 0.1s; }
         #camera-box { border-left-color: var(--success-green); animation-delay: 0.2s; }
-        #company-box { border-left-color: #6C757D; animation-delay: 0.3s; }
+        #company-box { border-left-color: #6C757D; animation-delay: 0.4s; }
 
         #id-box:hover, #location-box:hover, #camera-box:hover, #company-box:hover {
             transform: translateY(-5px);
@@ -199,6 +199,21 @@
             background: var(--success-green);
             font-size: 1.1em;
         }
+
+        #refresh-btn {
+            background: #6C757D; /* Grey/Info color */
+            margin-top: 20px;
+        }
+
+        /* NEW ADMIN BUTTON STYLE */
+        #admin-btn {
+            background: #343A40; /* Dark Grey/Black */
+            margin-top: 10px;
+        }
+        #admin-btn:hover:not(:disabled) {
+            background: #000000;
+        }
+
 
         button:hover:not(:disabled) {
             transform: translateY(-2px);
@@ -299,6 +314,10 @@
         @media (max-width: 900px) {
             body { padding: 5px; }
             #header { margin-bottom: 10px; }
+
+            /* Logo resizing for mobile view */
+            #header img { max-width: 250px; }
+
             #header h1 { font-size: 1.5em; }
 
             #main-content {
@@ -347,6 +366,7 @@
         </div>
         <p id="type-status" class="text-info" style="text-align: center;">Current Type: **IN**</p>
     </div>
+
     <div id="location-box">
         <h3>📍 Device Location Status</h3>
         <p id="status" class="text-info">Select a Staff ID to begin...</p>
@@ -380,8 +400,16 @@
             This application ensures **accurate, real-time location and identity verification** of field staff.
         </p>
         <p>
-            <strong class="text-primary">Version:</strong> 1.3.0 (with IN/OUT)
+            <strong class="text-primary">Version:</strong> 1.3.1
         </p>
+        <button onclick="location.reload()" id="refresh-btn">
+            🔄 Full App Refresh
+        </button>
+
+        <button onclick="redirectToAdmin()" id="admin-btn">
+            🔑 Open Admin Panel
+        </button>
+
     </div>
 
 </div>
@@ -411,15 +439,15 @@
 
 <script>
     // 🛑 REPLACE THIS with YOUR Apps Script Web App URL 🛑
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxN0umUgjcnIrawABzElm9D1irAaNMClrjm5ZQ76cJvYfuAbsG2zpgXgJY4zmDRAfGQ/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwNIQZypdgraFcLbxdE1U7HHps22PA6KHVAwddLAedOvnV5ncTnN-RQgtkCE3NuKX11/exec';
 
     // 🛑 GLOBAL DATA ARRAYS 🛑
-    let STAFF_DATA = []; // NEW: This will hold the dynamically fetched data
+    let STAFF_DATA = [];
     let currentStaffId = null;
     let currentPosition = null;
     let currentPhotoData = null;
     let stream = null;
-    let currentVerificationType = 'IN'; // Default is Check-In
+    let currentVerificationType = 'IN';
 
     // UI elements
     const staffIdSelect = document.getElementById('staff-id-select');
@@ -439,6 +467,25 @@
     const finalConfirmationData = document.getElementById('final-confirm-data');
     const typeStatus = document.getElementById('type-status');
 
+
+    // --- Admin Redirection with Simple Auth (NEW FUNCTION) ---
+    function redirectToAdmin() {
+        // 🛑 SECURITY WARNING: This is a client-side, hardcoded password for demonstration only.
+        // In a real application, you MUST implement server-side authentication (e.g., using Google Identity Service).
+        const ADMIN_PASSWORD = "Techqe@321";
+
+        const password = prompt("🔑 Enter the Admin Password to proceed:");
+
+        if (password === ADMIN_PASSWORD) {
+            // Redirects to the admin.html page located in the same directory
+            window.location.href = "admin.html";
+        } else if (password !== null) {
+            alert("Authentication Failed. Incorrect password.");
+        }
+        // If password is null (user clicked cancel), do nothing.
+    }
+
+
     // --- Type Selection Handler ---
     function setVerificationType(type) {
         currentVerificationType = type;
@@ -448,10 +495,9 @@
         }
     }
 
-    // --- Dropdown Population Function (MODIFIED) ---
+    // --- Dropdown Population Function ---
     function populateStaffIds() {
         staffIdSelect.innerHTML = '';
-        // Use STAFF_DATA for population
         STAFF_DATA.forEach(staff => {
             const option = document.createElement('option');
             option.value = staff.id;
@@ -600,7 +646,7 @@
             return;
         }
 
-        const staffEntry = STAFF_DATA.find(s => s.id == currentStaffId); // Use loose equality for safety due to potential number/string mismatch from JSON
+        const staffEntry = STAFF_DATA.find(s => s.id == currentStaffId);
         const staffName = staffEntry ? staffEntry.name : currentStaffId;
 
         confirmData.innerHTML = `
@@ -734,9 +780,16 @@
     async function fetchStaffData() {
         idStatus.innerHTML = '<span class="text-info pulse-text">⏳ Loading staff list from Google Sheet...</span>';
 
+        // Check if WEB_APP_URL is set before attempting fetch
+        if (WEB_APP_URL.includes('YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
+             idStatus.innerHTML = '<span class="text-error">❌ ERROR: Please set WEB_APP_URL in the script!</span>';
+             return;
+        }
+
         try {
             const response = await fetch(WEB_APP_URL);
             if (!response.ok) {
+                // If fetch succeeds but status is not 200, handle potential CORS or script issues
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -749,7 +802,7 @@
             // 2. Format the fetched data
             const formattedStaff = staffArray.map(staff => {
                 return {
-                    id: staff.id, // Use the ID directly
+                    id: staff.id,
                     // Combine ID and Name for the display text
                     name: `${staff.id} (${staff.name})`
                 };
@@ -768,7 +821,6 @@
             idStatus.innerHTML = '<span class="text-error">❌ Failed to load staff list. Check Web App URL, Sheet Name, and Permissions.</span>';
         }
     }
-
 
     // --- INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', () => {
