@@ -17,7 +17,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 10px; /* Reduced padding for mobile space */
+            padding: 20px;
             background: var(--light-bg);
             display: flex;
             flex-direction: column;
@@ -26,28 +26,12 @@
             margin: 0;
         }
 
-        /* --- Header Enhancements for Mobile --- */
-        #header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        #header img {
-            max-width: 150px; /* Make logo smaller on mobile */
-            height: auto;
-        }
-
-        #header h1 {
-            font-size: 1.5em; /* Make header text smaller on mobile */
-            color: var(--primary-blue);
-        }
-
         #main-content {
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px; /* Slightly reduced gap */
+            gap: 25px;
             width: 100%;
             max-width: 1200px;
         }
@@ -55,14 +39,14 @@
         /* --- Box Styles --- */
         #id-box, #location-box, #camera-box, #company-box {
             background: var(--box-bg);
-            padding: 20px; /* Slightly reduced padding inside boxes */
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
             border-top: 5px solid var(--primary-blue);
             width: 30%;
             min-width: 280px;
             max-width: 450px;
-            margin-bottom: 15px; /* Reduced margin */
+            margin-bottom: 20px;
             box-sizing: border-box;
             transition: transform 0.3s ease-in-out;
         }
@@ -78,13 +62,27 @@
             border-bottom: 2px solid var(--accent-yellow);
             padding-bottom: 8px;
             margin-top: 0;
-            font-size: 1.1em; /* Slightly smaller heading for mobile */
+            font-size: 1.2em;
         }
 
-        /* --- Form Element Styles --- */
+        /* Style for Type Selector */
+        .verification-type-selector {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0 10px;
+            padding: 10px;
+            border: 1px dashed #B0C4DE;
+            border-radius: 6px;
+        }
+        .verification-type-selector label {
+            font-weight: bold;
+            color: #6A5ACD;
+        }
+
+        /* --- Select Dropdown Styles --- */
         #staff-id-select {
             width: 100%;
-            padding: 12px; /* Slightly larger padding for easier tapping */
+            padding: 10px;
             margin-top: 10px;
             border: 2px solid var(--primary-blue);
             border-radius: 6px;
@@ -100,7 +98,7 @@
 
         /* --- Button Styles --- */
         button {
-            padding: 14px 18px; /* Slightly larger padding for easier tapping */
+            padding: 12px 18px;
             border: none;
             background: var(--primary-blue);
             color: white;
@@ -112,7 +110,6 @@
             font-weight: bold;
             letter-spacing: 0.5px;
             transition: background 0.3s, transform 0.1s;
-            font-size: 1em; /* Ensures good size on mobile */
         }
 
         #submit-btn {
@@ -131,7 +128,7 @@
             display: block;
             margin: 15px auto;
             border: 3px solid var(--primary-blue);
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             max-width: 100%;
             height: auto;
             border-radius: 8px;
@@ -165,14 +162,14 @@
             height: 100%;
             overflow: auto;
             background-color: rgba(0,0,0,0.6);
-            padding-top: 20px; /* Reduced padding top for mobile */
+            padding-top: 60px;
         }
         .modal-content {
             background-color: var(--box-bg);
             margin: 5% auto;
-            padding: 25px;
+            padding: 30px;
             border: 1px solid #888;
-            width: 90%; /* Increased width for better fit on small screens */
+            width: 80%;
             max-width: 550px;
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
@@ -189,29 +186,17 @@
         .text-error { color: #DC143C; font-weight: bold; }
         .text-info { color: var(--primary-blue); }
 
-        /* --- MOBILE/SMALL SCREEN STYLES (Key for Responsiveness) --- */
+        /* --- MOBILE/SMALL SCREEN STYLES --- */
         @media (max-width: 900px) {
-            body {
-                padding: 5px; /* Minimal body padding */
-            }
-
             #main-content {
-                /* Switch to vertical stacking */
                 flex-direction: column;
                 align-items: center;
-                gap: 10px; /* Tighter gap between stacked boxes */
+                gap: 15px;
             }
 
             #id-box, #location-box, #camera-box, #company-box {
-                /* Make boxes full width */
-                width: 98%;
-                min-width: auto; /* Remove min-width restriction */
-                margin-bottom: 10px; /* Tighter margin */
-                padding: 15px; /* Tighter internal padding */
-            }
-
-            #header h1 {
-                font-size: 1.3em; /* Ensure header title doesn't break */
+                width: 95%;
+                max-width: 100%;
             }
         }
     </style>
@@ -228,8 +213,22 @@
         <h3>👤 Staff Identification</h3>
         <p>Select your unique **Staff ID** to begin verification.</p>
         <select id="staff-id-select" onchange="captureStaffId()">
-            </select>
+        </select>
         <p id="id-status" class="text-info"></p>
+
+        <hr style="border-top: 1px solid #ddd; margin: 15px 0;">
+        <h3 style="color: #6A5ACD; border-bottom-color: #ddd;">➡️ Verification Type</h3>
+        <div class="verification-type-selector">
+            <label>
+                <input type="radio" name="verification-type" value="IN" checked onchange="setVerificationType(this.value)">
+                **Check-In (IN Time)**
+            </label>
+            <label>
+                <input type="radio" name="verification-type" value="OUT" onchange="setVerificationType(this.value)">
+                **Check-Out (OUT Time)**
+            </label>
+        </div>
+        <p id="type-status" class="text-info">Current Type: **IN**</p>
     </div>
     <div id="location-box">
         <h3>🌍 Accurate Device Location</h3>
@@ -265,7 +264,7 @@
         </p>
         <p>
             <strong class="text-primary">Website:</strong> <a href="https://www.techniqueengineers.com/" target="_blank" style="color: var(--primary-blue);">techniqueengineers.com</a><br>
-            <strong class="text-primary">Version:</strong> 1.2.8
+            <strong class="text-primary">Version:</strong> 1.3.0 (with IN/OUT)
         </p>
     </div>
 
@@ -276,7 +275,7 @@
         <span class="close" onclick="closeConfirmationModal()">&times;</span>
         <h3 style="border-bottom-color: var(--success-green);">Confirm Submission Details</h3>
         <div id="confirm-data">
-            </div>
+        </div>
         <button id="final-submit-btn" onclick="uploadDataToGoogleSheet()">
             Confirm and Final Submit
         </button>
@@ -287,7 +286,7 @@
     <div class="modal-content">
         <span class="close" onclick="closeConfirmationModal()">&times;</span>
         <div id="final-confirm-data">
-            </div>
+        </div>
         <button onclick="closeConfirmationModal()" style="background: var(--success-green); margin-top: 20px;">
             Close and Continue
         </button>
@@ -296,23 +295,15 @@
 
 <script>
     // 🛑 REPLACE THIS with YOUR Apps Script Web App URL 🛑
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwZvohuofPFI9UxxKOEzpyGUQYbzthiAWhjSqR-rSTZdseRsTwYCJ1o4SVPxDUCJmwB/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxN0umUgjcnIrawABzElm9D1irAaNMClrjm5ZQ76cJvYfuAbsG2zpgXgJY4zmDRAfGQ/exec';
 
-    // 🛑 IMPORTANT: DEFINE YOUR STAFF ID LIST HERE 🛑
-    const STAFF_IDS = [
-        { id: '', name: '--- Select Staff ID ---' },
-        { id: 'TE-1001', name: 'TE-1001 (John Doe)' },
-        { id: 'TE-1002', name: 'TE-1002 (Jane Smith)' },
-        { id: 'TE-1003', name: 'TE-1003 (Mike Johnson)' },
-        { id: 'TE-1004', name: 'TE-1004 (Sarah Lee)' },
-    ];
-    // ----------------------------------------------------
-
-    // Global variables to store the latest data
+    // 🛑 GLOBAL DATA ARRAYS 🛑
+    let STAFF_DATA = []; // NEW: This will hold the dynamically fetched data
     let currentStaffId = null;
     let currentPosition = null;
     let currentPhotoData = null;
     let stream = null;
+    let currentVerificationType = 'IN'; // Default is Check-In
 
     // UI elements
     const staffIdSelect = document.getElementById('staff-id-select');
@@ -330,10 +321,22 @@
     const confirmData = document.getElementById('confirm-data');
     const finalConfirmationModal = document.getElementById('finalConfirmationModal');
     const finalConfirmationData = document.getElementById('final-confirm-data');
+    const typeStatus = document.getElementById('type-status');
 
-    // --- Dropdown Population Function ---
+    // --- Type Selection Handler ---
+    function setVerificationType(type) {
+        currentVerificationType = type;
+        typeStatus.innerHTML = `Current Type: **${type}**`;
+        if (currentStaffId && currentPosition && currentPhotoData) {
+            checkReadiness();
+        }
+    }
+
+    // --- Dropdown Population Function (MODIFIED) ---
     function populateStaffIds() {
-        STAFF_IDS.forEach(staff => {
+        staffIdSelect.innerHTML = '';
+        // Use STAFF_DATA for population
+        STAFF_DATA.forEach(staff => {
             const option = document.createElement('option');
             option.value = staff.id;
             option.textContent = staff.name;
@@ -366,7 +369,7 @@
     function checkReadiness() {
         if (currentStaffId && currentPosition && currentPhotoData) {
             submitButton.disabled = false;
-            submitButton.textContent = "Review & Submit Data (Ready)";
+            submitButton.textContent = `Review & Submit Data (${currentVerificationType})`;
             submitButton.style.background = 'var(--success-green)';
         } else {
             submitButton.disabled = true;
@@ -375,7 +378,7 @@
         }
     }
 
-    // --- GEOLOCATION FUNCTIONALITY ---
+    // --- GEOLOCATION FUNCTIONALITY (Standard W3C API) ---
     function getAccurateLocation() {
         if (!currentStaffId) return;
 
@@ -413,7 +416,7 @@
         );
     }
 
-    // --- CAMERA FUNCTIONALITY (Uses Web MediaDevices/getUserMedia) ---
+    // --- CAMERA FUNCTIONALITY (Standard Media Devices API) ---
     async function openCamera() {
         if (!currentStaffId) return;
 
@@ -426,7 +429,7 @@
         }
 
         try {
-            // Request camera access
+            // Request camera access, preferring front camera
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
             video.srcObject = stream;
             video.play();
@@ -475,14 +478,16 @@
     // --- Confirmation Modal Functions ---
     function openConfirmationModal() {
         if (!currentStaffId || !currentPosition || !currentPhotoData) {
-            alert("Please ensure Staff ID is selected, location is captured, and photo is taken before reviewing.");
+            alert("Please ensure all data is captured before reviewing.");
             return;
         }
 
-        const staffName = STAFF_IDS.find(s => s.id === currentStaffId)?.name || currentStaffId;
+        const staffEntry = STAFF_DATA.find(s => s.id == currentStaffId); // Use loose equality for safety due to potential number/string mismatch from JSON
+        const staffName = staffEntry ? staffEntry.name : currentStaffId;
 
         confirmData.innerHTML = `
             <p><strong>Staff ID:</strong> <span class="text-primary">${staffName}</span></p>
+            <p><strong>Verification Type:</strong> <span style="font-size: 1.1em; color: ${currentVerificationType === 'IN' ? 'var(--success-green)' : '#FF8C00'};">**${currentVerificationType}**</span></p>
             <hr>
             <p><strong>Time of Review:</strong> ${new Date().toLocaleTimeString()}</p>
             <p><strong>Latitude:</strong> <span class="text-primary">${currentPosition.latitude.toFixed(6)}</span></p>
@@ -491,7 +496,7 @@
             <p><strong>Captured Photo:</strong></p>
             <img src="${currentPhotoData}" alt="Captured Image for Confirmation" style="max-width: 100%; border-radius: 8px;">
             <hr>
-            <p style="font-weight: bold; color: #DC143C;">⚠️ Verify all details, especially your ID, before clicking "Confirm and Final Submit".</p>
+            <p style="font-weight: bold; color: #DC143C;">⚠️ Verify all details, especially your ID and Type, before clicking "Confirm and Final Submit".</p>
         `;
 
         modal.style.display = "block";
@@ -508,9 +513,14 @@
         }
     }
 
-    // --- UPLOAD FUNCTIONALITY: MODIFIED TO SHOW FINAL SUCCESS MODAL ---
+    // --- UPLOAD FUNCTIONALITY: INCLUDES TYPE AND PHOTO DATA ---
     async function uploadDataToGoogleSheet() {
-        closeConfirmationModal(); // Close the initial review modal
+        if (WEB_APP_URL.includes('YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
+            alert("ERROR: Please replace 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE' with your actual Apps Script Web App URL.");
+            return;
+        }
+
+        closeConfirmationModal();
 
         const finalSubmitButton = document.getElementById('final-submit-btn');
         finalSubmitButton.disabled = true;
@@ -521,19 +531,20 @@
 
         const dataToSend = {
             staffId: currentStaffId,
+            type: currentVerificationType,
             latitude: currentPosition.latitude,
             longitude: currentPosition.longitude,
             accuracy: currentPosition.accuracy,
             photoData: currentPhotoData
         };
 
-        // Capture data for success summary before resetting globals
         const submittedStaffId = currentStaffId;
         const submittedPosition = {...currentPosition};
+        const submittedType = currentVerificationType;
 
         try {
-            // Note: The 'no-cors' mode is required for Google Apps Script Web App POST requests
-            const response = await fetch(WEB_APP_URL, {
+            // Use 'no-cors' mode for Google Apps Script Web App POST
+            await fetch(WEB_APP_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: {
@@ -542,18 +553,14 @@
                 body: JSON.stringify(dataToSend)
             });
 
-            // --- Post-Submission Success Actions ---
-
-            // 1. Display success message on the main screen
+            // Success Actions
             cameraStatus.innerHTML = '<span class="text-success">✅ Upload SUCCESS! Data sent to Google Sheet.</span>';
             submitButton.style.background = 'var(--success-green)';
             submitButton.textContent = "Data Submitted! (Select ID to Start New)";
 
-            // 2. Open Final Confirmation Modal
-            openFinalConfirmationModal(submittedStaffId, submittedPosition);
+            openFinalConfirmationModal(submittedStaffId, submittedPosition, submittedType);
 
-
-            // 3. Reset UI for next submission
+            // Reset UI for next submission
             currentPosition = null;
             currentPhotoData = null;
             photoOutput.src = '';
@@ -566,13 +573,12 @@
             openCameraButton.disabled = true;
             locationStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
             cameraStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
-
             checkReadiness();
             finalSubmitButton.disabled = false;
 
         } catch (error) {
             console.error('Upload Error:', error);
-            cameraStatus.innerHTML = `<span class="text-error">❌ Upload FAILED: ${error.message}</span>`;
+            cameraStatus.innerHTML = `<span class="text-error">❌ Upload FAILED: Check Network/Apps Script URL. ${error.message}</span>`;
             submitButton.style.background = '#DC143C';
             submitButton.textContent = "Submission Failed (Click to Retry)";
             submitButton.disabled = false;
@@ -580,17 +586,19 @@
         }
     }
 
-    // NEW FUNCTION: Displays the final success confirmation
-    function openFinalConfirmationModal(staffId, position) {
+    // Displays the final success confirmation
+    function openFinalConfirmationModal(staffId, position, type) {
         if (!finalConfirmationModal) return;
 
-        const staffName = STAFF_IDS.find(s => s.id === staffId)?.name || staffId;
+        const staffEntry = STAFF_DATA.find(s => s.id == staffId);
+        const staffName = staffEntry ? staffEntry.name : staffId;
 
         finalConfirmationData.innerHTML = `
             <h3 style="color: var(--success-green); border-bottom-color: var(--success-green);">Submission Successful! 🎉</h3>
             <p>Your verification data has been successfully sent to the Google Sheet.</p>
             <hr>
             <p><strong>Staff ID:</strong> <span class="text-success">${staffName}</span></p>
+            <p><strong>Verification Type:</strong> <span style="font-size: 1.1em; color: ${type === 'IN' ? 'var(--success-green)' : '#FF8C00'};">**${type}**</span></p>
             <p><strong>Time:</strong> ${new Date().toLocaleTimeString()}</p>
             <p><strong>Coordinates:</strong> ${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}</p>
             <hr>
@@ -599,12 +607,55 @@
         finalConfirmationModal.style.display = "block";
     }
 
+    /**
+     * ASYNC FUNCTION: Fetches staff data from the Google Sheet Web App (using doGet).
+     */
+    async function fetchStaffData() {
+        idStatus.innerHTML = '<span class="text-info">⏳ Loading staff list from Google Sheet...</span>';
 
-    // Initial setup on page load
-    populateStaffIds();
-    video.style.display = 'none';
-    openCameraButton.disabled = true;
-    checkReadiness();
+        try {
+            const response = await fetch(WEB_APP_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Parse the JSON array returned by the Apps Script doGet function
+            const staffArray = await response.json();
+
+            // 1. Add the mandatory placeholder option at the beginning
+            const placeholder = { id: '', name: '--- Select Staff ID ---' };
+
+            // 2. Format the fetched data
+            const formattedStaff = staffArray.map(staff => {
+                return {
+                    id: staff.id, // Use the ID directly
+                    // Combine ID and Name for the display text
+                    name: `${staff.id} (${staff.name})`
+                };
+            });
+
+            // 3. Set the global STAFF_DATA array
+            STAFF_DATA = [placeholder].concat(formattedStaff);
+
+            // 4. Populate the dropdown
+            populateStaffIds();
+
+            idStatus.innerHTML = `<span class="text-success">✅ Staff list loaded (${staffArray.length} entries).</span>`;
+
+        } catch (error) {
+            console.error('Failed to fetch staff data:', error);
+            idStatus.innerHTML = '<span class="text-error">❌ Failed to load staff list. Check Web App URL, Sheet Name, and Permissions.</span>';
+        }
+    }
+
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchStaffData(); // Start fetching data immediately
+        video.style.display = 'none';
+        openCameraButton.disabled = true;
+        checkReadiness();
+    });
 </script>
 
 </body>
