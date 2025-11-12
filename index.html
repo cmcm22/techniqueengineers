@@ -4,26 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FVS - Field Verification System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- General & Background Styles --- */
+        /* --- Root Variables & Fonts --- */
         :root {
-            --primary-blue: #1E90FF;
-            --success-green: #3CB371;
-            --accent-yellow: #FFD700;
-            --light-bg: #F0F8FF;
+            --primary-blue: #007BFF; /* Brighter Blue */
+            --success-green: #28A745; /* Standard Green */
+            --accent-yellow: #FFC107; /* Standard Yellow */
+            --light-bg: #E9ECEF; /* Light Grey-Blue background */
             --box-bg: #FFFFFF;
-            --text-color: #333;
+            --text-color: #343A40;
+            --danger-red: #DC3545;
         }
 
+        /* --- Custom Keyframe Animations --- */
+        @keyframes fadeInSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+
+        /* --- General & Background Styles --- */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-            background: var(--light-bg);
+            font-family: 'Poppins', sans-serif;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--light-bg) 0%, #D1E5F0 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             color: var(--text-color);
             margin: 0;
+            min-height: 100vh;
+        }
+
+        /* --- Header Styles for Mobile View --- */
+        #header {
+            text-align: center;
+            padding: 15px 0;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #header img {
+            max-width: 80px;
+            height: auto;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 5px;
+            transition: transform 0.5s ease;
+        }
+
+        #header img:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        #header h1 {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1.8em;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         #main-content {
@@ -31,38 +82,49 @@
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 25px;
+            gap: 20px;
             width: 100%;
             max-width: 1200px;
         }
 
-        /* --- Box Styles --- */
+        /* --- Box Styles (Enhanced Card Look + Load Animation) --- */
         #id-box, #location-box, #camera-box, #company-box {
             background: var(--box-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            border-top: 5px solid var(--primary-blue);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-left: 8px solid var(--primary-blue);
             width: 30%;
             min-width: 280px;
             max-width: 450px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-sizing: border-box;
-            transition: transform 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            animation: fadeInSlideUp 0.6s ease-out both; /* Apply animation */
+        }
+
+        /* Delay the animations for a staggered effect */
+        #location-box { border-left-color: var(--accent-yellow); animation-delay: 0.1s; }
+        #camera-box { border-left-color: var(--success-green); animation-delay: 0.2s; }
+        #company-box { border-left-color: #6C757D; animation-delay: 0.3s; }
+
+        #id-box:hover, #location-box:hover, #camera-box:hover, #company-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
         }
 
         #camera-box {
             text-align: center;
             flex-grow: 1;
-            border-top-color: var(--success-green);
         }
 
         h3 {
-            color: var(--primary-blue);
-            border-bottom: 2px solid var(--accent-yellow);
+            color: var(--text-color);
+            border-bottom: 3px solid var(--primary-blue);
             padding-bottom: 8px;
             margin-top: 0;
-            font-size: 1.2em;
+            font-size: 1.3em;
+            font-weight: 600;
         }
 
         /* Style for Type Selector */
@@ -71,32 +133,50 @@
             justify-content: space-around;
             margin: 15px 0 10px;
             padding: 10px;
-            border: 1px dashed #B0C4DE;
-            border-radius: 6px;
+            background: #F8F9FA;
+            border: 1px solid #DEE2E6;
+            border-radius: 8px;
+            transition: box-shadow 0.3s;
+        }
+        .verification-type-selector:hover {
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
         }
         .verification-type-selector label {
-            font-weight: bold;
-            color: #6A5ACD;
+            font-weight: 600;
+            color: #495057;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .verification-type-selector input[type="radio"]:checked + label {
+            color: var(--primary-blue);
+            text-shadow: 0 0 1px rgba(0, 123, 255, 0.5);
         }
 
-        /* --- Select Dropdown Styles --- */
+        /* --- Select Dropdown Styles (Modernized) --- */
         #staff-id-select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-top: 10px;
-            border: 2px solid var(--primary-blue);
-            border-radius: 6px;
+            border: 1px solid #CED4DA;
+            border-radius: 8px;
             box-sizing: border-box;
-            font-size: 1em;
-            background-color: #fff;
+            font-size: 1.1em;
+            background-color: #F8F9FA;
+            color: var(--text-color);
             appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path d="M6 9l-3-3 6-6z" fill="%231E90FF"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23007BFF" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
             background-repeat: no-repeat;
-            background-position: right 10px top 50%;
-            padding-right: 30px;
+            background-position: right 15px center;
+            padding-right: 40px;
+            transition: all 0.3s;
+        }
+        #staff-id-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+            outline: none;
         }
 
-        /* --- Button Styles --- */
+        /* --- Button Styles (Vibrant & Interactive) --- */
         button {
             padding: 12px 18px;
             border: none;
@@ -107,49 +187,83 @@
             margin-top: 15px;
             width: 100%;
             box-sizing: border-box;
-            font-weight: bold;
+            font-weight: 600;
             letter-spacing: 0.5px;
-            transition: background 0.3s, transform 0.1s;
+            transition: background 0.3s, transform 0.1s, box-shadow 0.3s;
+            text-transform: uppercase;
         }
 
+        #open-camera-btn { background: #17A2B8; } /* Teal */
+        #capture-btn { background: #FF8C00; } /* Orange */
         #submit-btn {
             background: var(--success-green);
+            font-size: 1.1em;
         }
 
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        #open-camera-btn:active:not(:disabled) {
+            animation: pulse 0.5s;
+        }
+
+
         button:disabled {
-            background: #B0C4DE;
-            color: #666;
+            background: #CED4DA;
+            color: #6C757D;
             cursor: not-allowed;
             box-shadow: none;
+            transform: none;
         }
 
         /* --- Video/Photo Styles --- */
         video, canvas {
             display: block;
             margin: 15px auto;
-            border: 3px solid var(--primary-blue);
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border: 4px solid var(--primary-blue);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
             max-width: 100%;
             height: auto;
-            border-radius: 8px;
+            border-radius: 10px;
         }
 
         #captured-photo {
             margin-top: 20px;
             border: 2px dashed var(--success-green);
-            background: #F8FFF8;
+            background: #EAF7EE;
             padding: 15px;
             display: none;
-            border-radius: 8px;
+            border-radius: 10px;
+            animation: fadeInSlideUp 0.4s ease-out; /* Photo result animation */
         }
 
         #photo-output {
             max-width: 100%;
             height: auto;
-            border-radius: 6px;
+            border-radius: 8px;
             display: block;
             margin: 10px auto 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+
+        /* --- Status Messages (Pulse for success/important info) --- */
+        .text-success { color: var(--success-green); font-weight: 600; }
+        .text-error { color: var(--danger-red); font-weight: 600; }
+        .text-info { color: var(--primary-blue); }
+        .text-primary { color: var(--primary-blue); }
+
+        .pulse-text {
+            animation: pulse 1s infinite;
+            display: inline-block; /* Required for pulse effect on text */
+        }
+
 
         /* --- Confirmation Modal Styles --- */
         .modal {
@@ -161,18 +275,18 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            padding-top: 60px;
+            background-color: rgba(0,0,0,0.7);
+            padding-top: 20px;
         }
         .modal-content {
             background-color: var(--box-bg);
             margin: 5% auto;
             padding: 30px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 550px;
+            border: none;
+            width: 90%;
+            max-width: 500px;
             border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             animation-name: animatetop;
             animation-duration: 0.4s
         }
@@ -181,23 +295,27 @@
             to {top: 0; opacity: 1}
         }
 
-        /* --- Status Messages --- */
-        .text-success { color: var(--success-green); font-weight: bold; }
-        .text-error { color: #DC143C; font-weight: bold; }
-        .text-info { color: var(--primary-blue); }
-
-        /* --- MOBILE/SMALL SCREEN STYLES --- */
+        /* --- MOBILE/SMALL SCREEN STYLES (Focus on stacking and full width) --- */
         @media (max-width: 900px) {
+            body { padding: 5px; }
+            #header { margin-bottom: 10px; }
+            #header h1 { font-size: 1.5em; }
+
             #main-content {
                 flex-direction: column;
-                align-items: center;
                 gap: 15px;
             }
 
             #id-box, #location-box, #camera-box, #company-box {
-                width: 95%;
-                max-width: 100%;
+                width: 98%;
+                min-width: unset;
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 5px;
             }
+
+            h3 { font-size: 1.1em; }
+            button { padding: 10px; font-size: 0.95em; }
         }
     </style>
 </head>
@@ -210,14 +328,13 @@
 <div id="main-content">
 
     <div id="id-box">
-        <h3>👤 Staff Identification</h3>
+        <h3>👤 Staff Identification & Type</h3>
         <p>Select your unique **Staff ID** to begin verification.</p>
         <select id="staff-id-select" onchange="captureStaffId()">
         </select>
         <p id="id-status" class="text-info"></p>
 
-        <hr style="border-top: 1px solid #ddd; margin: 15px 0;">
-        <h3 style="color: #6A5ACD; border-bottom-color: #ddd;">➡️ Verification Type</h3>
+        <hr style="border-top: 1px dashed #ddd; margin: 15px 0;">
         <div class="verification-type-selector">
             <label>
                 <input type="radio" name="verification-type" value="IN" checked onchange="setVerificationType(this.value)">
@@ -228,10 +345,10 @@
                 **Check-Out (OUT Time)**
             </label>
         </div>
-        <p id="type-status" class="text-info">Current Type: **IN**</p>
+        <p id="type-status" class="text-info" style="text-align: center;">Current Type: **IN**</p>
     </div>
     <div id="location-box">
-        <h3>🌍 Accurate Device Location</h3>
+        <h3>📍 Device Location Status</h3>
         <p id="status" class="text-info">Select a Staff ID to begin...</p>
     </div>
 
@@ -244,7 +361,7 @@
         <canvas id="canvas" style="display:none;"></canvas>
 
         <div id="captured-photo">
-            <strong>Captured Photo:</strong>
+            <strong>Captured Photo Preview:</strong>
             <img id="photo-output" alt="Captured Face Photo">
         </div>
 
@@ -260,10 +377,9 @@
             <strong class="text-primary">Project:</strong> Field Verification System (FVS)
         </p>
         <p>
-            This application is designed for **accurate, real-time location and identity verification** of field staff.
+            This application ensures **accurate, real-time location and identity verification** of field staff.
         </p>
         <p>
-            <strong class="text-primary">Website:</strong> <a href="https://www.techniqueengineers.com/" target="_blank" style="color: var(--primary-blue);">techniqueengineers.com</a><br>
             <strong class="text-primary">Version:</strong> 1.3.0 (with IN/OUT)
         </p>
     </div>
@@ -350,10 +466,10 @@
 
         if (selectedId && selectedId !== '') {
             currentStaffId = selectedId;
-            idStatus.innerHTML = `<span class="text-success">✅ ID Set: <strong>${selectedId}</strong>. Ready to proceed.</span>`;
+            idStatus.innerHTML = `<span class="text-success pulse-text">✅ ID Set: <strong>${selectedId}</strong>. Ready to proceed.</span>`;
 
             openCameraButton.disabled = false;
-            locationStatus.innerHTML = '<span class="text-info">⏳ Fetching accurate location…</span>';
+            locationStatus.innerHTML = '<span class="text-info pulse-text">⏳ Fetching accurate location…</span>';
             getAccurateLocation();
         } else {
             currentStaffId = null;
@@ -371,10 +487,12 @@
             submitButton.disabled = false;
             submitButton.textContent = `Review & Submit Data (${currentVerificationType})`;
             submitButton.style.background = 'var(--success-green)';
+            submitButton.classList.add('pulse-text'); // Add pulse to signal readiness
         } else {
             submitButton.disabled = true;
             submitButton.textContent = "Review & Submit Data";
-            submitButton.style.background = '#B0C4DE';
+            submitButton.style.background = '#CED4DA';
+            submitButton.classList.remove('pulse-text');
         }
     }
 
@@ -395,7 +513,7 @@
                 currentPosition = { latitude, longitude, accuracy };
 
                 locationStatus.innerHTML = `
-                    <span class="text-success">✅ **Location Found!**</span><br>
+                    <span class="text-success pulse-text">✅ **Location Found!**</span><br>
                     Latitude: <strong>${latitude.toFixed(6)}</strong><br>
                     Longitude: <strong>${longitude.toFixed(6)}</strong><br>
                     Accuracy: <strong>${accuracy.toFixed(1)}</strong> meters
@@ -469,7 +587,7 @@
         video.style.display = 'none';
         captureButton.disabled = true;
 
-        cameraStatus.innerHTML = '<span class="text-success">✅ Photo captured! Click the green button to review.</span>';
+        cameraStatus.innerHTML = '<span class="text-success pulse-text">✅ Photo captured! Click the green button to review.</span>';
         openCameraButton.textContent = "Re-Open Camera";
 
         checkReadiness();
@@ -496,7 +614,7 @@
             <p><strong>Captured Photo:</strong></p>
             <img src="${currentPhotoData}" alt="Captured Image for Confirmation" style="max-width: 100%; border-radius: 8px;">
             <hr>
-            <p style="font-weight: bold; color: #DC143C;">⚠️ Verify all details, especially your ID and Type, before clicking "Confirm and Final Submit".</p>
+            <p style="font-weight: bold; color: var(--danger-red);">⚠️ Verify all details, especially your ID and Type, before clicking "Confirm and Final Submit".</p>
         `;
 
         modal.style.display = "block";
@@ -528,6 +646,7 @@
         submitButton.disabled = true;
         submitButton.textContent = "Submitting Data... Please Wait";
         submitButton.style.background = 'var(--primary-blue)';
+        submitButton.classList.add('pulse-text');
 
         const dataToSend = {
             staffId: currentStaffId,
@@ -554,7 +673,7 @@
             });
 
             // Success Actions
-            cameraStatus.innerHTML = '<span class="text-success">✅ Upload SUCCESS! Data sent to Google Sheet.</span>';
+            cameraStatus.innerHTML = '<span class="text-success pulse-text">✅ Upload SUCCESS! Data sent to Google Sheet.</span>';
             submitButton.style.background = 'var(--success-green)';
             submitButton.textContent = "Data Submitted! (Select ID to Start New)";
 
@@ -575,14 +694,16 @@
             cameraStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
             checkReadiness();
             finalSubmitButton.disabled = false;
+            submitButton.classList.remove('pulse-text');
 
         } catch (error) {
             console.error('Upload Error:', error);
             cameraStatus.innerHTML = `<span class="text-error">❌ Upload FAILED: Check Network/Apps Script URL. ${error.message}</span>`;
-            submitButton.style.background = '#DC143C';
+            submitButton.style.background = '#DC3545';
             submitButton.textContent = "Submission Failed (Click to Retry)";
             submitButton.disabled = false;
             finalSubmitButton.disabled = false;
+            submitButton.classList.remove('pulse-text');
         }
     }
 
@@ -611,7 +732,7 @@
      * ASYNC FUNCTION: Fetches staff data from the Google Sheet Web App (using doGet).
      */
     async function fetchStaffData() {
-        idStatus.innerHTML = '<span class="text-info">⏳ Loading staff list from Google Sheet...</span>';
+        idStatus.innerHTML = '<span class="text-info pulse-text">⏳ Loading staff list from Google Sheet...</span>';
 
         try {
             const response = await fetch(WEB_APP_URL);
