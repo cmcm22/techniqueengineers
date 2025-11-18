@@ -15,7 +15,7 @@
             --text-color: #343A40;
             --danger-red: #DC3545;
             --salary-purple: #6F42C1; /* New color for Salary tab */
-            --info-cyan: #17A2B8; /* For the popup */
+            --info-cyan: #17A2B8; /* For the salary popup */
         }
 
         @keyframes fadeInSlideUp {
@@ -310,7 +310,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        /* --- START MODAL CSS --- */
+        /* --- START MODAL CSS (Shared for Salary and Confirmation) --- */
         .modal {
             display: none;
             position: fixed;
@@ -348,6 +348,16 @@
             margin-bottom: 15px;
             font-size: 1.5em;
             font-weight: 700;
+        }
+
+        /* Specific styling for the SUCCESS modal */
+        #confirmation-modal .modal-content {
+            border-top: 8px solid var(--success-green);
+        }
+
+        #confirmation-modal .modal-header {
+            color: var(--success-green);
+            border-bottom-color: var(--success-green);
         }
 
         .modal-details p {
@@ -390,6 +400,10 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        #confirmation-modal .modal-btn {
+            background-color: var(--success-green); /* Green button for success modal */
         }
         /* --- END MODAL CSS --- */
 
@@ -474,7 +488,7 @@
 <body>
 
 <header id="header">
-    <img src="https://i.imgur.com/your-logo.png" alt="Company Logo">
+    <img src="https://www.techniqueengineers.com/assets/images/technique-engineers-logo.png" alt="Company Logo">
     <h1>Field Verification System (FVS)</h1>
 </header>
 
@@ -597,6 +611,18 @@
 
 </div>
 
+<div id="confirmation-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeConfirmationPopup()">&times;</span>
+        <div class="modal-header">
+            ✅ Submission Successful!
+        </div>
+        <div id="confirmation-details-content" class="modal-details">
+            </div>
+        <button class="modal-btn" onclick="closeConfirmationPopup()">Got It! Start New Verification</button>
+    </div>
+</div>
+
 <div id="salary-modal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeSalaryDetailsPopup()">&times;</span>
@@ -647,6 +673,8 @@
     // New Modal Elements
     const salaryModal = document.getElementById('salary-modal');
     const modalDetailsContent = document.getElementById('modal-details-content');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const confirmationDetailsContent = document.getElementById('confirmation-details-content');
 
 
     // --- Tab Switching Logic ---
@@ -706,7 +734,7 @@
         });
     }
 
-    // --- Staff ID Handling (Check-in tab) (UPDATED) ---
+    // --- Staff ID Handling (Check-in tab) ---
     function captureStaffId() {
         const selectedId = staffIdSelect.value;
         currentStaffId = selectedId || null;
@@ -760,7 +788,7 @@
         }
     }
 
-    // --- GEOLOCATION FUNCTIONALITY (UNCHANGED) ---
+    // --- GEOLOCATION FUNCTIONALITY ---
     function getAccurateLocation() {
         if (!currentStaffId) return;
 
@@ -797,7 +825,7 @@
         );
     }
 
-    // --- CAMERA FUNCTIONALITY (UNCHANGED) ---
+    // --- CAMERA FUNCTIONALITY ---
     async function openCamera() {
         if (!currentStaffId) return;
 
@@ -855,7 +883,37 @@
         checkReadiness();
     }
 
-    // --- UPLOAD FUNCTIONALITY: CHECK-IN/OUT (UNCHANGED) ---
+    // --- MODAL FUNCTIONS (Check-in Confirmation) ---
+
+    function closeConfirmationPopup() {
+        confirmationModal.style.display = 'none';
+    }
+
+    function showConfirmationPopup(data) {
+        const staff = STAFF_DATA.find(s => s.id === data.staffId) || { details: { fullName: 'Unknown User' } };
+        const staffName = staff.details.fullName;
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+        confirmationDetailsContent.innerHTML = `
+            <p style="text-align: center; font-size: 1.2em; font-weight: 600;">
+                Thank you, ${staffName}!
+            </p>
+            <p><strong>Verification Type:</strong> <span style="color: var(--success-green);">${data.type}</span></p>
+            <p><strong>Staff ID:</strong> ${data.staffId}</p>
+            <p><strong>Date & Time:</strong> ${dateString} at ${timeString}</p>
+            <p><strong>Location:</strong> ${data.latitude.toFixed(4)}, ${data.longitude.toFixed(4)}</p>
+            <p style="background: var(--accent-yellow); padding: 10px; border-radius: 5px; text-align: center; color: var(--text-color);">
+                Your location and photo have been recorded.
+            </p>
+        `;
+        confirmationModal.style.display = 'block';
+    }
+
+
+    // --- UPLOAD FUNCTIONALITY: CHECK-IN/OUT (UPDATED) ---
     async function uploadDataToGoogleSheet() {
         if (!currentStaffId || !currentPosition || !currentPhotoData) {
             alert("Error: Missing Staff ID, Location, or Photo Data.");
@@ -886,12 +944,14 @@
                 body: JSON.stringify(dataToSend)
             });
 
-            // NOTE: Since mode is 'no-cors', we can't check response.ok or read response.json().
+            // --- SUCCESS HANDLING (No-CORS Mode) ---
             // We assume success unless a network error occurs.
-
             cameraStatus.innerHTML = '<span class="text-success pulse-text">✅ Upload SUCCESS! Data sent to Google Sheet.</span>';
 
-            // Reset UI for next submission
+            // 1. Show Confirmation Popup with details
+            showConfirmationPopup(dataToSend);
+
+            // 2. Reset UI for next submission
             currentPosition = null;
             currentPhotoData = null;
             photoOutput.src = '';
@@ -899,8 +959,7 @@
             staffIdSelect.value = '';
             currentStaffId = null;
             idStatus.textContent = '';
-            staffDetailsDisplay.style.display = 'none'; // Hide details box on successful reset
-            openCameraButton.textContent = "Open Camera";
+            staffDetailsDisplay.style.display = 'none';
 
             openCameraButton.disabled = true;
             locationStatus.innerHTML = '<span class="text-info">Select a Staff ID to begin...</span>';
@@ -916,7 +975,8 @@
         }
     }
 
-    // --- MODAL FUNCTIONS ---
+
+    // --- MODAL FUNCTIONS (Salary Details - Existing) ---
 
     function closeSalaryDetailsPopup() {
         salaryModal.style.display = 'none';
@@ -962,10 +1022,12 @@
     window.onclick = function(event) {
         if (event.target == salaryModal) {
             closeSalaryDetailsPopup();
+        } else if (event.target == confirmationModal) {
+             closeConfirmationPopup();
         }
     }
 
-    // --- UPDATED FUNCTION: Fetch Staff Salary Data ---
+    // --- UPDATED FUNCTION: Fetch Staff Salary Data (Existing) ---
     async function fetchStaffSalaryData() {
         const staffId = salaryStaffIdSelect.value;
         if (!staffId) {
@@ -1045,7 +1107,7 @@
     }
 
 
-    // --- Data Fetching and Initialization (UNCHANGED) ---
+    // --- Data Fetching and Initialization ---
     async function fetchStaffData() {
         idStatus.innerHTML = '<span class="text-info pulse-text">⏳ Loading staff list from Google Sheet...</span>';
 
